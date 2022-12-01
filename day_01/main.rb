@@ -4,7 +4,7 @@ require "minitest/autorun"
 
 class MostCalories
   def initialize
-    @most_calories = 0
+    @calories = []
     @current_calories = 0
   end
 
@@ -13,21 +13,18 @@ class MostCalories
   end
 
   def next_elf
-    @most_calories = [@most_calories, @current_calories].max
+    @calories << @current_calories
     @current_calories = 0
   end
 
-  def most_calories
-    @most_calories
+  def most_calories(limit)
+    @calories.sort.reverse.take(limit).sum
   end
 end
 
 class TestMostCalories < Minitest::Test
   def setup
     @calculator = MostCalories.new
-  end
-
-  def test_usage
     @calculator.add_calories(1000)
     @calculator.add_calories(2000)
     @calculator.add_calories(3000)
@@ -41,10 +38,16 @@ class TestMostCalories < Minitest::Test
     @calculator.add_calories(8000)
     @calculator.add_calories(9000)
     @calculator.next_elf
-    @calculator.add_calories(1000)
+    @calculator.add_calories(10000)
     @calculator.next_elf
+  end
 
-    assert_equal 24000, @calculator.most_calories
+  def test_top_1
+    assert_equal 24000, @calculator.most_calories(1)
+  end
+
+  def test_top_3
+    assert_equal 45000, @calculator.most_calories(3)
   end
 end
 
@@ -62,5 +65,6 @@ ARGV.each do |filename|
 
   calculator.next_elf
 
-  puts "Most calories: #{calculator.most_calories}"
+  puts "Top 1 -> #{calculator.most_calories(1)}"
+  puts "Top 3 -> #{calculator.most_calories(3)}"
 end
